@@ -1,1 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Король против Выскочки - Medieval Strategy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Georgia', serif;
+            overflow: hidden;
+            background: #1a1a2e;
+        }
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+        }
+        #ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        #top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(180deg, #2d1f0f 0%, #1a1a2e 100%);
+            border-bottom: 3px solid #gold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            pointer-events: auto;
+        }
+        .resource {
+            color: #ffd700;
+            font-size: 18px;
+            margin-right: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        #mission-info {
+            color: #fff;
+            font-size: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        #bottom-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 180px;
+            background: linear-gradient(0deg, #2d1f0f 0%, transparent 100%);
+            pointer-events: auto;
+            display: flex;
+            padding: 20px;
+        }
+        #unit-panel {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .unit-card {
+            width: 80px;
+            height: 100px;
+            background: linear-gradient(135deg, #4a3c2a 0%, #2d1f0f 100%);
+            border: 2px solid #8b7355;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ffd700;
+            font-size: 12px;
+            text-align: center;
+        }
+        .unit-card:hover {
+            transform: scale(1.1);
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        .unit-card.selected {
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+        .unit-icon {
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+        #minimap-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 150px;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #8b7355;
+            border-radius: 8px;
+            pointer-events: auto;
+        }
+        #minimap {
+            width: 100%;
+            height: 100%;
+        }
+        #message-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(45, 31, 15, 0.95);
+            border: 3px solid #ffd700;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            color: #ffd700;
+            font-size: 24px;
+            display: none;
+            pointer-events: auto;
+            z-index: 1000;
+        }
+        #message-area h2 {
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #4a3c2a 0%, #2d1f0f 100%);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            margin: 10px;
+            transition: all 0.3s;
+            font-family: 'Georgia', serif;
+        }
+        .btn:hover {
+            background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+            color: #2d1f0f;
+        }
+        #health-bar {
+            position: absolute;
+            background: #333;
+            border: 1px solid #000;
+            border-radius: 3px;
+            overflow: hidden;
+            display: none;
+        }
+        #health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000 0%, #00ff00 100%);
+            transition: width 0.3s;
+        }
+        .tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.9);
+            border: 1px solid #ffd700;
+            padding: 10px;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 14px;
+            display: none;
+            pointer-events: none;
+            z-index: 1001;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="canvas-container"></div>
+        <div id="ui-overlay">
+            <div id="top-bar">
+                <div id="mission-info">Миссия 1: Первые шаги</div>
+                <div style="display: flex;">
+                    <span class="resource">🍞 Зерно: <span id="food">200</span></span>
+                    <span class="resource">🪵 Дерево: <span id="wood">200</span></span>
+                    <span class="resource">💰 Золото: <span id="gold">200</span></span>
+                    <span class="resource">⚔️ Войска: <span id="army">0</span></span>
+                </div>
+            </div>
+            <div id="bottom-panel">
+                <div id="unit-panel">
+                    <div class="unit-card" data-unit="peasant">
+                        <div class="unit-icon">👨‍🌾</div>
+                        <div>Крестьянин</div>
+                        <div>50🍞</div>
+                    </div>
+                    <div class="unit-card" data-unit="swordsman">
+                        <div class="unit-icon">⚔️</div>
+                        <div>Мечник</div>
+                        <div>60🍞 20💰</div>
+                    </div>
+                    <div class="unit-card" data-unit="archer">
+                        <div class="unit-icon">🏹</div>
+                        <div>Лучник</div>
+                        <div>50🍞 30🪵</div>
+                    </div>
+                    <div class="unit-card" data-unit="knight">
+                        <div class="unit-icon">🐴</div>
+                        <div>Рыцарь</div>
+                        <div>80🍞 50💰</div>
+                    </div>
+                    <div class="unit-card" data-unit="catapult">
+                        <div class="unit-icon">🏰</div>
+                        <div>Катапульта</div>
+                        <div>100🪵 75💰</div>
+                    </div>
+                </div>
+            </div>
+            <div id="minimap-container">
+                <canvas id="minimap"></canvas>
+            </div>
+            <div id="message-area">
+                <h2 id="message-title">Добро пожаловать!</h2>
+                <p id="message-text">Король призывает вас на службу! Разбейте армию выскочки и докажите верность короне.</p>
+                <button class="btn" onclick="startGame()">Начать миссию</button>
+            </div>
+            <div id="health-bar">
+                <div id="health-fill"></div>
+            </div>
+            <div class="tooltip" id="tooltip"></div>
+        </div>
+    </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
