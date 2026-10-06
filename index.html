@@ -1,60 +1,37 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Война и Мир — мини KaM для GitHub Pages</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaM: Война и Мир — Браузерная стратегия</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div id="app">
-  <aside id="sidebar">
-    <canvas id="minimap" width="168" height="120"></canvas>
-    <div id="logo">⚔️ Война<br>и Мир 🛡️<div id="ver">мини-KaM v0.1</div></div>
-    <div id="mission-name">Миссия 1</div>
-    <div id="objective"></div>
-    <div id="palette-label">Постройка (клавиши 1-9,0):</div>
-    <div id="palette"></div>
-    <div id="info-panel"><div id="info-title">—</div><div id="info-body">Выдели здание или юнита.<br>ЛКМ — выбрать/поставить<br>ПКМ — приказ отряду<br>R — дорога, F — накормить<br>WASD/стрелки — камера</div><div id="info-actions"></div></div>
-    <div id="squads"></div>
-  </aside>
-  <main id="stage">
-    <div id="topbar">
-      <span id="clock">00:00</span>
-      <span id="resbar"></span>
-      <span id="popbar"></span>
-      <button id="btn-feed" title="Послать еду selected отряду / всем голодным">🍖 Накормить</button>
-      <button id="btn-speed" title="Скорость игры">▶ x1</button>
-      <button id="btn-help" title="Помощь">?</button>
-      <select id="mission-select" title="Миссия"></select>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="ui-overlay">
+            <div id="top-bar">
+                <div class="resource" id="res-gold"><span class="icon">🪙</span><span class="value">0</span></div>
+                <div class="resource" id="res-wood"><span class="icon">🪵</span><span class="value">0</span></div>
+                <div class="resource" id="res-stone"><span class="icon">🪨</span><span class="value">0</span></div>
+                <div class="resource" id="res-food"><span class="icon">🍖</span><span class="value">0</span></div>
+                <div class="resource" id="res-pop"><span class="icon">👥</span><span class="value">0/0</span></div>
+            </div>
+            <div id="bottom-bar">
+                <div id="build-menu"></div>
+                <div id="selection-info"></div>
+            </div>
+            <div id="minimap-container">
+                <canvas id="minimap"></canvas>
+            </div>
+            <div id="game-message"></div>
+        </div>
     </div>
-    <canvas id="game"></canvas>
-    <div id="toast"></div>
-    <div id="hint">Режим дороги — клавиша R. Сервы носят грузы быстрее по дорогам. Солдат корми кнопкой 🍖.</div>
-    <div id="gameover" class="hidden">
-      <div id="go-title"></div>
-      <div id="go-text"></div>
-      <button id="btn-again">Играть снова</button>
-    </div>
-    <div id="help" class="hidden">
-      <h3>Как играть (по мотивам Knights &amp; Merchants)</h3>
-      <ol>
-        <li><b>Склад</b> — сердце базы. Потерял все склады = поражение. Ресурсы общие на базу.</li>
-        <li><b>Школа</b> — делает сервов (носят грузы), строителей и рекрутов. Нужно: хлеб + золото для рекрута.</li>
-        <li><b>Таверна</b> — кормит мирных (хлеб/вино/колбаса). Следи за голодом: голодный юнит бросает работу и идёт есть, потом умирает.</li>
-        <li>Цепочки: лес → доски; пшеница → хлеб; пшеница → свинья → колбаса; железо+доски → оружие/броня.</li>
-        <li><b>Казарма</b>: рекрут + оружие + броня = солдат. Собирай отряды, выделяй рамкой, приказывай ПКМ.</li>
-        <li>В бою отряд не слушается ~3 сек (как в оригинале!). Солдат корми кнопкой 🍖, иначе умрёт от голода в поле.</li>
-        <li>Победа: снести вражеские казармы, склады и школы + перебить солдат.</li>
-      </ol>
-      <button id="btn-close-help">Закрыть</button>
-    </div>
-  </main>
-</div>
-<script src="js/data.js"></script>
-<script src="js/sim.js"></script>
-<script src="js/render.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/main.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
